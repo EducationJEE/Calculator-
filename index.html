@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+      /* Google Font Integration */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Root Variables for theming */
+:root {
+    --primary-color: #7367f0;
+    --secondary-color: #6355e0;
+    --accent-color: #a991ff;
+    --text-color: #333;
+    --light-text: #fff;
+    --dark-text: #212529;
+    --error-color: #ea5455;
+    --success-color: #28c76f;
+    --warning-color: #ff9f43;
+    --info-color: #00cfe8;
+    --light-bg: #f8f9fa;
+    --dark-bg: #324253;
+    --border-radius: 12px;
+    --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    --gradient-primary: linear-gradient(135deg, #7367f0 10%, #a992fe 100%);
+    --gradient-secondary: linear-gradient(135deg, #00cfe8 10%, #1ce7ff 100%);
+    --gradient-success: linear-gradient(135deg, #28c76f 10%, #48da89 100%);
+    --gradient-danger: linear-gradient(135deg, #ea5455 10%, #ff9f43 100%);
+    --gradient-background: linear-gradient(135deg, #7367f0 0%, #9e8cfc 50%, #667eea 100%);
+    --transition-speed: 0.3s;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--gradient-background);
+    background-attachment: fixed;
+    color: var(--light-text);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.calculator-app {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.app-title {
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+/* Calculator Container Styles */
+.calculator-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+}
+
+/* Tab Styles */
+.nav-tabs {
+    border-bottom: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px 10px 0;
+}
+
+.nav-tabs .nav-link {
+    color: var(--light-text);
+    border: none;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    padding: 12px 20px;
+    margin-right: 5px;
+    transition: all var(--transition-speed);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--dark-text);
+    background-color: white;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 8px;
+}
+
+/* Tab Content Styles */
+.tab-content {
+    background-color: white;
+    color: var(--dark-text);
+    padding: 20px;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+/* Basic Calculator Panel */
+.calculator-panel {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-screen {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: right;
+}
+
+.history-display {
+    min-height: 24px;
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.main-display {
+    font-size: 36px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calculator-buttons .row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.calculator-buttons .btn {
+    flex: 1;
+    margin: 0 5px;
+    height: 60px;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s;
+    border: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-buttons .btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.number-btn {
+    background-color: white;
+    color: var(--dark-text);
+}
+
+.number-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.operator-btn {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.operator-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.function-btn {
+    background-color: #e9ecef;
+    color: var(--dark-text);
+}
+
+.function-btn:hover {
+    background-color: #dee2e6;
+}
+
+.memory-btn {
+    background-color: #343a40;
+    color: white;
+    font-size: 16px;
+}
+
+.memory-btn:hover {
+    background-color: #212529;
+    color: white;
+}
+
+.wide-btn {
+    flex: 2.1;
+}
+
+/* Form Calculator Styles */
+.calculator-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.input-group-text {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.calculate-btn {
+    width: 100%;
+    background: var(--gradient-primary);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(115, 103, 240, 0.4);
+    transition: all 0.3s;
+}
+
+.calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(115, 103, 240, 0.5);
+    background: var(--primary-color);
+    color: white;
+}
+
+.calculate-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(115, 103, 240, 0.5);
+}
+
+/* Results Styling */
+.results {
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.result-label {
+    font-weight: 500;
+}
+
+.result-value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.total-result {
+    margin-top: 10px;
+    font-size: 18px;
+    background-color: rgba(115, 103, 240, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Currency Converter Specific Styles */
+.conversion-result {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.result-display {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.update-time {
+    color: #6c757d;
+}
+
+/* History Container Styles */
+.history-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 15px;
+}
+
+.history-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.clear-history-btn {
+    background-color: rgba(234, 84, 85, 0.3);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.3s;
+}
+
+.clear-history-btn:hover {
+    background-color: rgba(234, 84, 85, 0.5);
+}
+
+.history-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.history-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-expression {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.history-result {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: auto;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(115, 103, 240, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(115, 103, 240, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(115, 103, 240, 0);
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .calculator-app {
+        padding: 10px;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .calculator-buttons .btn {
+        height: 50px;
+        font-size: 16px;
+        margin: 0 3px;
+    }
+    
+    .main-display {
+        font-size: 28px;
+    }
+    
+    .history-header h3 {
+        font-size: 18px;
+    }
+    
+    .result-display {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .calculator-panel {
+        padding: 15px;
+    }
+    
+    .calculator-buttons .btn {
+        height: 45px;
+        font-size: 14px;
+        margin: 0 2px;
+    }
+    
+    .main-display {
+        font-size: 24px;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    .nav-tabs .nav-link i {
+        margin-right: 4px;
+    }
+    
+    .results {
+        padding: 10px;
+    }
+    
+    .result-item {
+        font-size: 14px;
+    }
+    
+    .total-result {
+        font-size: 16px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid calculator-app">
+        <div class="row">
+            <div class="col-md-12 text-center mt-3 mb-3">
+                <h1 class="app-title"><i class="fas fa-calculator"></i> Advanced Calculator</h1>
+            </div>
+        </div>
+
+        <!-- Calculator Tabs -->
+        <div class="calculator-container">
+            <ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" 
+                        type="button" role="tab" aria-controls="basic" aria-selected="true">
+                        <i class="fas fa-calculator"></i> Basic
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profit-loss-tab" data-bs-toggle="tab" data-bs-target="#profit-loss" 
+                        type="button" role="tab" aria-controls="profit-loss" aria-selected="false">
+                        <i class="fas fa-chart-line"></i> Profit/Loss
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="gst-tab" data-bs-toggle="tab" data-bs-target="#gst" 
+                        type="button" role="tab" aria-controls="gst" aria-selected="false">
+                        <i class="fas fa-receipt"></i> GST
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="currency-tab" data-bs-toggle="tab" data-bs-target="#currency" 
+                        type="button" role="tab" aria-controls="currency" aria-selected="false">
+                        <i class="fas fa-coins"></i> Currency
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="calculatorTabContent">
+                <!-- Basic Calculator Tab -->
+                <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                    <div class="calculator-panel">
+                        <div class="calculator-screen">
+                            <div class="history-display" id="historyDisplay"></div>
+                            <div class="main-display" id="mainDisplay">0</div>
+                        </div>
+                        <div class="calculator-buttons">
+                            <div class="row">
+                                <button class="btn memory-btn" id="mc">MC</button>
+                                <button class="btn memory-btn" id="mr">MR</button>
+                                <button class="btn memory-btn" id="m-plus">M+</button>
+                                <button class="btn memory-btn" id="m-minus">M-</button>
+                            </div>
+                            <div class="row">
+                                <button class="btn function-btn" id="clear">C</button>
+                                <button class="btn function-btn" id="plus-minus">±</button>
+                                <button class="btn function-btn" id="percentage">%</button>
+                                <button class="btn operator-btn" id="divide">÷</button>
+                            </div>
+                            <div class="row">
+                                <button class="btn number-btn" id="seven">7</button>
+                                <button class="btn number-btn" id="eight">8</button>
+                                <button class="btn number-btn" id="nine">9</button>
+                                <button class="btn operator-btn" id="multiply">×</button>
+                            </div>
+                            <div class="row">
+                                <button class="btn number-btn" id="four">4</button>
+                                <button class="btn number-btn" id="five">5</button>
+                                <button class="btn number-btn" id="six">6</button>
+                                <button class="btn operator-btn" id="subtract">-</button>
+                            </div>
+                            <div class="row">
+                                <button class="btn number-btn" id="one">1</button>
+                                <button class="btn number-btn" id="two">2</button>
+                                <button class="btn number-btn" id="three">3</button>
+                                <button class="btn operator-btn" id="add">+</button>
+                            </div>
+                            <div class="row">
+                                <button class="btn number-btn wide-btn" id="zero">0</button>
+                                <button class="btn number-btn" id="decimal">.</button>
+                                <button class="btn operator-btn" id="equals">=</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit Loss Calculator Tab -->
+                <div class="tab-pane fade" id="profit-loss" role="tabpanel" aria-labelledby="profit-loss-tab">
+                    <div class="calculator-form">
+                        <div class="mb-3">
+                            <label for="costPrice" class="form-label">Cost Price:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-money-bill"></i></span>
+                                <input type="number" class="form-control" id="costPrice" placeholder="Enter cost price">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sellingPrice" class="form-label">Selling Price:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input type="number" class="form-control" id="sellingPrice" placeholder="Enter selling price">
+                            </div>
+                        </div>
+                        <button class="btn calculate-btn" id="calculateProfitLoss">Calculate</button>
+                        
+                        <div class="results mt-4">
+                            <div class="result-item">
+                                <span class="result-label">Profit/Loss:</span>
+                                <span class="result-value" id="profitLossAmount">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Profit/Loss Percentage:</span>
+                                <span class="result-value" id="profitLossPercentage">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GST Calculator Tab -->
+                <div class="tab-pane fade" id="gst" role="tabpanel" aria-labelledby="gst-tab">
+                    <div class="calculator-form">
+                        <div class="form-check-group mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gstCalcType" id="addGST" value="add" checked>
+                                <label class="form-check-label" for="addGST">Add GST to Amount</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gstCalcType" id="removeGST" value="remove">
+                                <label class="form-check-label" for="removeGST">Extract GST from Amount</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-money-bill"></i></span>
+                                <input type="number" class="form-control" id="gstAmount" placeholder="Enter amount">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="gstRate" class="form-label">GST Rate:</label>
+                            <select class="form-select" id="gstRate">
+                                <option value="3">3% CGST + SGST</option>
+                                <option value="5">5% CGST + SGST</option>
+                                <option value="12">12% CGST + SGST</option>
+                                <option value="18" selected>18% CGST + SGST</option>
+                                <option value="28">28% CGST + SGST</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn calculate-btn" id="calculateGST">Calculate</button>
+                        
+                        <div class="results mt-4">
+                            <div class="result-item">
+                                <span class="result-label">Original Amount:</span>
+                                <span class="result-value" id="originalAmount">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">CGST Amount:</span>
+                                <span class="result-value" id="cgstAmount">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">SGST Amount:</span>
+                                <span class="result-value" id="sgstAmount">-</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Total Tax:</span>
+                                <span class="result-value" id="totalTax">-</span>
+                            </div>
+                            <div class="result-item total-result">
+                                <span class="result-label">Final Amount:</span>
+                                <span class="result-value" id="finalAmount">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currency Converter Tab -->
+                <div class="tab-pane fade" id="currency" role="tabpanel" aria-labelledby="currency-tab">
+                    <div class="calculator-form">
+                        <div class="mb-3">
+                            <label for="fromAmount" class="form-label">Amount:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-money-bill"></i></span>
+                                <input type="number" class="form-control" id="fromAmount" placeholder="Enter amount" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="fromCurrency" class="form-label">From Currency:</label>
+                                    <select class="form-select" id="fromCurrency">
+                                        <option value="USD" selected>USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="CAD">CAD - Canadian Dollar</option>
+                                        <option value="AUD">AUD - Australian Dollar</option>
+                                        <option value="INR">INR - Indian Rupee</option>
+                                        <option value="CNY">CNY - Chinese Yuan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="toCurrency" class="form-label">To Currency:</label>
+                                    <select class="form-select" id="toCurrency">
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="CAD">CAD - Canadian Dollar</option>
+                                        <option value="AUD">AUD - Australian Dollar</option>
+                                        <option value="INR" selected>INR - Indian Rupee</option>
+                                        <option value="CNY">CNY - Chinese Yuan</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn calculate-btn" id="convertCurrency">Convert</button>
+                        
+                        <div class="mt-4 conversion-result">
+                            <div class="result-display">
+                                <span id="conversionFromAmount">1 USD</span> = <span id="conversionToAmount">Loading...</span>
+                            </div>
+                            <div class="update-time small mt-2" id="lastUpdated">
+                                <i class="fas fa-clock"></i> Rates last updated: Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator History Section -->
+        <div class="history-container" id="historyContainer">
+            <div class="history-header">
+                <h3><i class="fas fa-history"></i> Calculation History</h3>
+                <button class="btn clear-history-btn" id="clearHistory"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="empty-history">No calculations yet</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <span>Advanced Calculator &copy; 2025
+            Created by Ashish</span>
+        </div>
+    </footer>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Basic Calculator Variables
+    const mainDisplay = document.getElementById('mainDisplay');
+    const historyDisplay = document.getElementById('historyDisplay');
+    const historyList = document.getElementById('historyList');
+    const historyContainer = document.getElementById('historyContainer');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+    
+    let currentValue = '0';
+    let previousValue = '';
+    let operation = null;
+    let resetScreen = false;
+    let memory = 0;
+    let calculationHistory = [];
+    
+    // Load history from localStorage if available
+    if (localStorage.getItem('calculationHistory')) {
+        try {
+            calculationHistory = JSON.parse(localStorage.getItem('calculationHistory'));
+            updateHistoryUI();
+        } catch (e) {
+            console.error('Error loading history:', e);
+            calculationHistory = [];
+        }
+    }
+    
+    // Basic Calculator Event Listeners
+    document.querySelectorAll('.number-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            inputNumber(button.textContent);
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 100);
+        });
+    });
+    
+    document.querySelectorAll('.operator-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const operationMap = {
+                '+': 'add',
+                '-': 'subtract',
+                '×': 'multiply',
+                '÷': 'divide',
+                '=': 'equals'
+            };
+            
+            const op = operationMap[button.textContent] || button.textContent;
+            handleOperation(op);
+            button.classList.add('active');
+            setTimeout(() => button.classList.remove('active'), 100);
+        });
+    });
+    
+    document.getElementById('clear').addEventListener('click', clearCalculator);
+    document.getElementById('decimal').addEventListener('click', appendDecimal);
+    document.getElementById('percentage').addEventListener('click', handlePercentage);
+    document.getElementById('plus-minus').addEventListener('click', changeSign);
+    
+    // Memory functions
+    document.getElementById('mc').addEventListener('click', memoryClear);
+    document.getElementById('mr').addEventListener('click', memoryRecall);
+    document.getElementById('m-plus').addEventListener('click', memoryAdd);
+    document.getElementById('m-minus').addEventListener('click', memorySubtract);
+    
+    // Clear history
+    clearHistoryBtn.addEventListener('click', () => {
+        calculationHistory = [];
+        localStorage.removeItem('calculationHistory');
+        updateHistoryUI();
+    });
+    
+    // Profit Loss Calculator
+    const costPriceInput = document.getElementById('costPrice');
+    const sellingPriceInput = document.getElementById('sellingPrice');
+    const calculatePLBtn = document.getElementById('calculateProfitLoss');
+    const profitLossAmountElement = document.getElementById('profitLossAmount');
+    const profitLossPercentageElement = document.getElementById('profitLossPercentage');
+    
+    calculatePLBtn.addEventListener('click', calculateProfitLoss);
+    
+    // GST Calculator
+    const gstAmount = document.getElementById('gstAmount');
+    const gstRate = document.getElementById('gstRate');
+    const calculateGSTBtn = document.getElementById('calculateGST');
+    const originalAmountElement = document.getElementById('originalAmount');
+    const cgstAmountElement = document.getElementById('cgstAmount');
+    const sgstAmountElement = document.getElementById('sgstAmount');
+    const totalTaxElement = document.getElementById('totalTax');
+    const finalAmountElement = document.getElementById('finalAmount');
+    
+    calculateGSTBtn.addEventListener('click', calculateGST);
+    
+    // Basic Calculator Functions
+    function updateDisplay() {
+        mainDisplay.textContent = formatNumber(currentValue);
+    }
+    
+    function formatNumber(number) {
+        const stringNumber = String(number);
+        
+        // Check if it's a number with decimal places
+        if (stringNumber.includes('.')) {
+            const [integer, decimal] = stringNumber.split('.');
+            const formattedInteger = Number(integer).toLocaleString();
+            return `${formattedInteger}.${decimal}`;
+        } else {
+            return Number(stringNumber).toLocaleString();
+        }
+    }
+    
+    function inputNumber(number) {
+        if (resetScreen) {
+            currentValue = '';
+            resetScreen = false;
+        }
+        
+        if (currentValue === '0' && number !== '0') {
+            currentValue = number;
+        } else if (currentValue !== '0') {
+            currentValue += number;
+        }
+        
+        updateDisplay();
+    }
+    
+    function appendDecimal() {
+        if (resetScreen) {
+            currentValue = '0';
+            resetScreen = false;
+        }
+        
+        if (!currentValue.includes('.')) {
+            currentValue += '.';
+        }
+        
+        updateDisplay();
+    }
+    
+    function handleOperation(op) {
+        if (operation === null && op !== 'equals') {
+            previousValue = currentValue;
+            operation = op;
+            historyDisplay.textContent = `${formatNumber(previousValue)} ${getOperationSymbol(operation)}`;
+            resetScreen = true;
+        } else if (operation && op === 'equals') {
+            calculate();
+            addToHistory();
+            operation = null;
+        } else if (operation) {
+            calculate();
+            previousValue = currentValue;
+            operation = op;
+            historyDisplay.textContent = `${formatNumber(previousValue)} ${getOperationSymbol(operation)}`;
+            resetScreen = true;
+        }
+    }
+    
+    function getOperationSymbol(op) {
+        switch (op) {
+            case 'add': return '+';
+            case 'subtract': return '-';
+            case 'multiply': return '×';
+            case 'divide': return '÷';
+            default: return '';
+        }
+    }
+    
+    function calculate() {
+        let result;
+        const prev = parseFloat(previousValue);
+        const current = parseFloat(currentValue);
+        
+        if (isNaN(prev) || isNaN(current)) return;
+        
+        switch (operation) {
+            case 'add':
+                result = prev + current;
+                break;
+            case 'subtract':
+                result = prev - current;
+                break;
+            case 'multiply':
+                result = prev * current;
+                break;
+            case 'divide':
+                if (current === 0) {
+                    result = 'Error';
+                } else {
+                    result = prev / current;
+                }
+                break;
+            default:
+                return;
+        }
+        
+        historyDisplay.textContent = `${formatNumber(previousValue)} ${getOperationSymbol(operation)} ${formatNumber(currentValue)} =`;
+        currentValue = String(result === 'Error' ? result : roundResult(result));
+        updateDisplay();
+    }
+    
+    function roundResult(number) {
+        // Round to 8 decimal places to avoid floating point precision issues
+        return Math.round(number * 100000000) / 100000000;
+    }
+    
+    function handlePercentage() {
+        if (currentValue === '0') return;
+        
+        if (operation && previousValue) {
+            const current = parseFloat(currentValue);
+            const prev = parseFloat(previousValue);
+            
+            switch (operation) {
+                case 'add':
+                case 'subtract':
+                    // Calculate percentage of the first number
+                    currentValue = String((prev * current) / 100);
+                    break;
+                case 'multiply':
+                case 'divide':
+                    // Just convert to percentage
+                    currentValue = String(current / 100);
+                    break;
+            }
+        } else {
+            currentValue = String(parseFloat(currentValue) / 100);
+        }
+        
+        updateDisplay();
+    }
+    
+    function changeSign() {
+        currentValue = String(-parseFloat(currentValue));
+        updateDisplay();
+    }
+    
+    function clearCalculator() {
+        currentValue = '0';
+        previousValue = '';
+        operation = null;
+        historyDisplay.textContent = '';
+        updateDisplay();
+    }
+    
+    function memoryClear() {
+        memory = 0;
+        showMemoryIndicator();
+    }
+    
+    function memoryRecall() {
+        currentValue = String(memory);
+        updateDisplay();
+    }
+    
+    function memoryAdd() {
+        memory += parseFloat(currentValue);
+        showMemoryIndicator();
+    }
+    
+    function memorySubtract() {
+        memory -= parseFloat(currentValue);
+        showMemoryIndicator();
+    }
+    
+    function showMemoryIndicator() {
+        // Visual indicator that memory is in use
+        const memoryIndicator = document.createElement('div');
+        memoryIndicator.classList.add('memory-indicator');
+        memoryIndicator.textContent = 'M';
+        document.body.appendChild(memoryIndicator);
+        
+        setTimeout(() => {
+            memoryIndicator.remove();
+        }, 1000);
+    }
+    
+    function addToHistory() {
+        const expression = historyDisplay.textContent;
+        const result = currentValue;
+        
+        if (expression && result) {
+            calculationHistory.unshift({
+                expression: expression,
+                result: result
+            });
+            
+            // Limit history to 20 items
+            if (calculationHistory.length > 20) {
+                calculationHistory.pop();
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+            
+            updateHistoryUI();
+        }
+    }
+    
+    function updateHistoryUI() {
+        historyList.innerHTML = '';
+        
+        if (calculationHistory.length === 0) {
+            historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
+            return;
+        }
+        
+        calculationHistory.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.classList.add('history-item');
+            
+            const expressionDiv = document.createElement('div');
+            expressionDiv.classList.add('history-expression');
+            expressionDiv.textContent = item.expression;
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.classList.add('history-result');
+            resultDiv.textContent = formatNumber(item.result);
+            
+            historyItem.appendChild(expressionDiv);
+            historyItem.appendChild(resultDiv);
+            
+            // Add click event to reuse this calculation
+            historyItem.addEventListener('click', () => {
+                currentValue = item.result;
+                updateDisplay();
+            });
+            
+            historyList.appendChild(historyItem);
+        });
+    }
+    
+    // Profit Loss Calculator Functions
+    function calculateProfitLoss() {
+        const cp = parseFloat(costPriceInput.value);
+        const sp = parseFloat(sellingPriceInput.value);
+        
+        if (isNaN(cp) || isNaN(sp) || cp <= 0) {
+            profitLossAmountElement.textContent = 'Invalid input';
+            profitLossPercentageElement.textContent = 'Invalid input';
+            return;
+        }
+        
+        const difference = sp - cp;
+        const percentage = (difference / cp) * 100;
+        
+        profitLossAmountElement.textContent = `${difference >= 0 ? 'Profit: ' : 'Loss: '}${Math.abs(difference).toFixed(2)}`;
+        profitLossPercentageElement.textContent = `${percentage >= 0 ? 'Profit: ' : 'Loss: '}${Math.abs(percentage).toFixed(2)}%`;
+        
+        // Change colors based on profit or loss
+        profitLossAmountElement.style.color = difference >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+        profitLossPercentageElement.style.color = difference >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+        
+        // Add to history
+        const calcType = 'Profit/Loss Calculation';
+        const expression = `CP: ${cp} | SP: ${sp}`;
+        const result = `${difference >= 0 ? 'Profit' : 'Loss'}: ${Math.abs(difference).toFixed(2)} (${Math.abs(percentage).toFixed(2)}%)`;
+        
+        calculationHistory.unshift({
+            expression: `${calcType}: ${expression}`,
+            result: result
+        });
+        
+        // Limit history to 20 items
+        if (calculationHistory.length > 20) {
+            calculationHistory.pop();
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+        
+        updateHistoryUI();
+    }
+    
+    // GST Calculator Functions
+    function calculateGST() {
+        const amount = parseFloat(gstAmount.value);
+        const rate = parseFloat(gstRate.value);
+        const isAddGST = document.getElementById('addGST').checked;
+        
+        if (isNaN(amount) || isNaN(rate) || amount < 0 || rate < 0) {
+            originalAmountElement.textContent = 'Invalid input';
+            return;
+        }
+        
+        let original, cgst, sgst, total, final;
+        
+        if (isAddGST) {
+            // Adding GST to amount
+            original = amount;
+            cgst = (original * (rate / 2)) / 100;
+            sgst = cgst;
+            total = cgst + sgst;
+            final = original + total;
+        } else {
+            // Removing GST from inclusive amount
+            const divisor = 1 + (rate / 100);
+            original = amount / divisor;
+            cgst = (original * (rate / 2)) / 100;
+            sgst = cgst;
+            total = cgst + sgst;
+            final = amount;
+        }
+        
+        originalAmountElement.textContent = original.toFixed(2);
+        cgstAmountElement.textContent = `${cgst.toFixed(2)} (${rate/2}%)`;
+        sgstAmountElement.textContent = `${sgst.toFixed(2)} (${rate/2}%)`;
+        totalTaxElement.textContent = `${total.toFixed(2)} (${rate}%)`;
+        finalAmountElement.textContent = final.toFixed(2);
+        
+        // Add to history
+        const calcType = 'GST Calculation';
+        const expression = `Amount: ${amount} | Rate: ${rate}% | ${isAddGST ? 'Add GST' : 'Extract GST'}`;
+        const result = `Final: ${final.toFixed(2)} (GST: ${total.toFixed(2)})`;
+        
+        calculationHistory.unshift({
+            expression: `${calcType}: ${expression}`,
+            result: result
+        });
+        
+        // Limit history to 20 items
+        if (calculationHistory.length > 20) {
+            calculationHistory.pop();
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+        
+        updateHistoryUI();
+    }
+    
+    // Initialize display
+    updateDisplay();
+    updateHistoryUI();
+    
+    // Keyboard support
+    document.addEventListener('keydown', handleKeyboardInput);
+    
+    function handleKeyboardInput(e) {
+        if (e.key >= '0' && e.key <= '9') {
+            inputNumber(e.key);
+        } else if (e.key === '.') {
+            appendDecimal();
+        } else if (e.key === '+') {
+            handleOperation('add');
+        } else if (e.key === '-') {
+            handleOperation('subtract');
+        } else if (e.key === '*') {
+            handleOperation('multiply');
+        } else if (e.key === '/') {
+            e.preventDefault(); // Prevent the browser search
+            handleOperation('divide');
+        } else if (e.key === 'Enter' || e.key === '=') {
+            handleOperation('equals');
+        } else if (e.key === 'Escape') {
+            clearCalculator();
+        } else if (e.key === '%') {
+            handlePercentage();
+        } else if (e.key === 'Backspace') {
+            // Handle backspace
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = '0';
+            }
+            updateDisplay();
+        }
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    // Currency Converter Elements
+    const fromAmount = document.getElementById('fromAmount');
+    const fromCurrency = document.getElementById('fromCurrency');
+    const toCurrency = document.getElementById('toCurrency');
+    const convertBtn = document.getElementById('convertCurrency');
+    const conversionFromAmount = document.getElementById('conversionFromAmount');
+    const conversionToAmount = document.getElementById('conversionToAmount');
+    const lastUpdated = document.getElementById('lastUpdated');
+    
+    let currencyRates = {};
+    let lastUpdatedTime = null;
+    
+    // Fetch currency rates on load
+    fetchCurrencyRates();
+    
+    // Event listeners
+    convertBtn.addEventListener('click', convertCurrency);
+    
+    // Currency pairs can also update automatically when changing values
+    fromAmount.addEventListener('input', convertCurrency);
+    fromCurrency.addEventListener('change', convertCurrency);
+    toCurrency.addEventListener('change', convertCurrency);
+    
+    // Functions
+    function fetchCurrencyRates() {
+        conversionToAmount.textContent = 'Fetching rates...';
+        
+        // Get rates from backend
+        fetch('/api/currency-rates')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                currencyRates = data;
+                lastUpdatedTime = new Date();
+                updateLastUpdatedTime();
+                convertCurrency();
+            })
+            .catch(error => {
+                console.error('Error fetching currency rates:', error);
+                conversionToAmount.textContent = 'Error fetching rates';
+                lastUpdated.textContent = 'Error: Could not update rates';
+                
+                // Use fallback static rates if API fails
+                currencyRates = {
+                    "USD": 1.0,
+                    "EUR": 0.93,
+                    "GBP": 0.79,
+                    "JPY": 150.2,
+                    "CAD": 1.36,
+                    "AUD": 1.52,
+                    "INR": 83.10,
+                    "CNY": 7.24
+                };
+                lastUpdatedTime = new Date();
+                updateLastUpdatedTime();
+                convertCurrency();
+            });
+    }
+    
+    function convertCurrency() {
+        const amount = parseFloat(fromAmount.value);
+        const from = fromCurrency.value;
+        const to = toCurrency.value;
+        
+        if (isNaN(amount) || amount <= 0) {
+            conversionToAmount.textContent = 'Enter a valid amount';
+            return;
+        }
+        
+        if (!currencyRates || Object.keys(currencyRates).length === 0) {
+            conversionToAmount.textContent = 'Currency rates not available';
+            return;
+        }
+        
+        // Get rates for the selected currencies
+        const fromRate = currencyRates[from] || 1;
+        const toRate = currencyRates[to] || 1;
+        
+        // Convert through USD as base currency
+        const inUSD = amount / fromRate;
+        const converted = inUSD * toRate;
+        
+        // Format the output with appropriate decimals
+        const roundedResult = formatCurrencyAmount(converted);
+        
+        // Update display
+        conversionFromAmount.textContent = `${amount.toFixed(2)} ${from}`;
+        conversionToAmount.textContent = `${roundedResult} ${to}`;
+        
+        // Add to history
+        const historyList = document.getElementById('historyList');
+        const calculationHistory = JSON.parse(localStorage.getItem('calculationHistory') || '[]');
+        
+        const calcType = 'Currency Conversion';
+        const expression = `${amount.toFixed(2)} ${from} to ${to}`;
+        const result = `${roundedResult} ${to}`;
+        
+        calculationHistory.unshift({
+            expression: `${calcType}: ${expression}`,
+            result: result
+        });
+        
+        // Limit history to 20 items
+        if (calculationHistory.length > 20) {
+            calculationHistory.pop();
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+        
+        // Update history UI if function exists
+        if (typeof updateHistoryUI === 'function') {
+            updateHistoryUI();
+        } else {
+            // Simple update if the full function is not accessible
+            if (historyList) {
+                if (calculationHistory.length === 0) {
+                    historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
+                    return;
+                }
+                
+                historyList.innerHTML = '';
+                calculationHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.classList.add('history-item');
+                    
+                    const expressionDiv = document.createElement('div');
+                    expressionDiv.classList.add('history-expression');
+                    expressionDiv.textContent = item.expression;
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.classList.add('history-result');
+                    resultDiv.textContent = item.result;
+                    
+                    historyItem.appendChild(expressionDiv);
+                    historyItem.appendChild(resultDiv);
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+        }
+    }
+    
+    function formatCurrencyAmount(amount) {
+        // Format the currency amount with appropriate decimal places
+        if (amount >= 1000) {
+            // For large numbers, show fewer decimal places
+            return amount.toFixed(2);
+        } else if (amount >= 10) {
+            return amount.toFixed(3);
+        } else if (amount >= 0.1) {
+            return amount.toFixed(4);
+        } else {
+            // For very small values, show more decimal places
+            return amount.toFixed(6);
+        }
+    }
+    
+    function updateLastUpdatedTime() {
+        if (lastUpdatedTime) {
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit'
+            };
+            lastUpdated.textContent = `Rates last updated: ${lastUpdatedTime.toLocaleString(undefined, options)}`;
+        } else {
+            lastUpdated.textContent = 'Rates not updated yet';
+        }
+    }
+    
+    // Refresh rates every 60 minutes
+    setInterval(fetchCurrencyRates, 60 * 60 * 1000);
+});
+
+</script>
+    <!-- Bootstrap JS with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Combined Custom Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}">
+    </script>
+</body>
+</html>
